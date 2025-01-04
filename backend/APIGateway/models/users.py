@@ -14,3 +14,11 @@ class User(BaseModel):
                 "password": "password",
             }
         }
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str
+
+class LoginPayload(BaseModel):
+    username: str
+    password: str

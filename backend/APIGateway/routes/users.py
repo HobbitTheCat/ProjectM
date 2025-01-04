@@ -1,60 +1,102 @@
-from fastapi import APIRouter, HTTPException
-import requests
+import httpx, os
+from fastapi import APIRouter, HTTPException, Depends
+from fastapi.security import OAuth2PasswordRequestForm
 from starlette import status
+from typing import Union, List
 
-from models.users import User
+from models.schedule import Group, Teacher, Location
+from models.users import User, TokenResponse, LoginPayload
+from auth.token_check import authenticate
 
+userAuthRouter = APIRouter(
+    tags=["usersAuth"]
+)
 userRouter = APIRouter(
     tags=["users"]
 )
 
-AccessControlServiceURLSignup = ...
-AccessControlServiceURLSignin = ...
+AccessControlServiceURLSignup = os.getenv("AccessControlServiceURLSignup")
+AccessControlServiceURLSignin = os.getenv("AccessControlServiceURLSignin")
+AddFavoriteGroupURL = os.getenv("AddFavoriteGroupURL")
+AddLastSearchedURL = os.getenv("AddLastSearchedURL")
+GetFavoriteGroupURL = os.getenv("GetFavoriteGroupURL")
+GetLastSearchedURL = os.getenv("GetLastSearchedURL")
 
-@userRouter.post("/api/v1/auth/signup")
+@userAuthRouter.post("/api/v1/user/auth/signup")
 async def signupUser(user: User) -> dict:
-    response = None
     try:
-        response = requests.post(AccessControlServiceURLSignup, json=user.model_dump())
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.HTTPError as e:
-        if response.status_code == status.HTTP_409_CONFLICT:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="The email is already registered. Please use another email."
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                AccessControlServiceURLSignup,
+                json=user.model_dump()
             )
-        else:
-            raise HTTPException(
-                status_code = response.status_code,
-                detail = response.json().get("detail", "An error occurred")
-            )
-    except requests.exceptions.RequestException as e:
-        raise HTTPException(
-            status_code = status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="AccessControlService is currently unavailable"
-        )
+            response.raise_for_status()
+            return response.json()
+    except httpx.RequestError as e:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY,
+                                detail=f"Failed to connect to downstream service: {e}")
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(status_code=e.response.status_code, detail=e.response.text)
 
-@userRouter.post("/api/v1/auth/signin")
-async def loginUser(user: User) -> dict:
-    response = None
+@userAuthRouter.post("/api/v1/user/auth/signin", response_model=TokenResponse)
+async def signinUser(user: OAuth2PasswordRequestForm = Depends()) -> dict:
     try:
-        response = requests.post(AccessControlServiceURLSignin, json=user.model_dump())
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.HTTPError as e:
-        if response.status_code == status.HTTP_404_NOT_FOUND:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"The user {user.username} was not found."
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                AccessControlServiceURLSignin,
+                json=LoginPayload(username=user.username,password=user.password)
             )
-        else:
-            raise HTTPException(
-                status_code = response.status_code,
-                detail = response.json().get("detail", "An error occurred")
+            response.raise_for_status()
+            return response.json()
+    except httpx.RequestError as e:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY,
+                                detail=f"Failed to connect to downstream service: {e}")
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(status_code=e.response.status_code, detail=e.response.text)
+
+
+
+async def send_post_request(url: str, data: dict, token: str) -> dict:
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                url,
+                json=data,
+                headers = {"Authorization": f"Bearer {token}"}
             )
-    except requests.exceptions.RequestException as e:
-        raise HTTPException(
-            status_code = status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="AccessControlService is currently unavailable"
-        )
+            response.raise_for_status()
+            return response.json()
+    except httpx.RequestError as e:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY,detail=f"Failed to connect to downstream service: {e}")
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(status_code=e.response.status_code, detail=e.response.text)
+
+@userRouter.post("/api/v1/user/favorite")
+async def addGroupFavorite(group: Group, token: str = Depends(authenticate)) -> dict:
+    return await send_post_request(AddFavoriteGroupURL, group.model_dump(), token)
+
+@userRouter.post("/api/v1/user/last-searched")
+async def addLastSearched(lastSearched: Union[Group, Teacher, Location], token: str = Depends(authenticate)):
+    return await send_post_request(AddLastSearchedURL, lastSearched.model_dump(), token)
+
+async def send_get_request(url: str, token: str) -> dict:
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                url,
+                headers={"Authorization": f"Bearer {token}"}
+            )
+            response.raise_for_status()
+            return response.json()
+    except httpx.RequestError as e:
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY,detail=f"Failed to connect to downstream service: {e}")
+    except httpx.HTTPStatusError as e:
+        raise HTTPException(status_code=e.response.status_code, detail=e.response.text)
+
+@userRouter.get("/api/v1/user/favorite", response_model=List[Group])
+async def favorite(token: str = Depends(authenticate)):
+    return await send_get_request(GetFavoriteGroupURL, token)
+
+@userRouter.get("/api/v1/user/last-searched", response_model=Union[List[Group], List[Teacher], List[Location]])
+async def lastSearched(token: str = Depends(authenticate)):
+    return await send_get_request(GetLastSearchedURL, token)
