@@ -9,11 +9,11 @@ scheduleRouter = APIRouter(
     tags=["schedule"]
 )
 
-DataProcessURLWeek = os.getenv("DataProcessURLWeek")
-DataProcessURLDay = os.getenv("DataProcessURLDay")
-DataProcessURLGroup = os.getenv("DataProcessURLGroup")
-DataProcessURLTeacher = os.getenv("DataProcessURLTeacher")
-DataProcessURLocation = os.getenv("DataProcessURLocation")
+DATA_PROCESS_URL_WEEK = os.getenv("DataProcessURLWeek")
+DATA_PROCESS_URL_DAY = os.getenv("DataProcessURLDay")
+DATA_PROCESS_URL_GROUP = os.getenv("DataProcessURLGroup")
+DATA_PROCESS_URL_TEACHER = os.getenv("DataProcessURLTeacher")
+DATA_PROCESS_URL_LOCATION = os.getenv("DataProcessURLocation")
 
 async def get_schedule(url:str, params: EventRequest, token: str):
     try:

@@ -5,29 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6e493f5b-dcaf-4bde-90d1-87ae5d2901f1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../APIGateway/auth/token_check.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../APIGateway/routes/schedule.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/auth/hash_password.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/auth/jwt_handler.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/settings.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../AuthDataBase/dataBase/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../AuthDataBase/models/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../AuthDataBase/models/data.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../AuthDataBase/routes/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/../AuthDataBase/routes/data.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../../.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../APIGateway/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/../APIGateway/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../APIGateway/models/schedule.py" beforeDir="false" afterPath="$PROJECT_DIR$/../APIGateway/models/schedule.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../APIGateway/models/users.py" beforeDir="false" afterPath="$PROJECT_DIR$/../APIGateway/models/users.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../APIGateway/requirements.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../APIGateway/routes/events.py" beforeDir="false" afterPath="$PROJECT_DIR$/../APIGateway/URL.env" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../APIGateway/routes/users.py" beforeDir="false" afterPath="$PROJECT_DIR$/../APIGateway/routes/users.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/user.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/routes/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/routes/user.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../AuthDataBase/.idea/dataSources.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../AuthDataBase/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthDataBase/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../AuthDataBase/dataBaseAPI.py" beforeDir="false" afterPath="$PROJECT_DIR$/../APIGateway/auth/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../AuthDataBase/dataBaseConection.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthDataBase/dataBase/dataBaseConection.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthDataBase/dataBase/dataBaseConection.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthDataBase/dataBase/dataBaseConection.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthDataBase/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthDataBase/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthDataBase/models/data.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthDataBase/models/data.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../AuthDataBase/routes/data.py" beforeDir="false" afterPath="$PROJECT_DIR$/../AuthDataBase/routes/data.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -84,6 +69,9 @@
       <updated>1735845663233</updated>
       <workItem from="1735845664253" duration="522000" />
       <workItem from="1736005869935" duration="10672000" />
+      <workItem from="1736021744892" duration="5812000" />
+      <workItem from="1736033386670" duration="1433000" />
+      <workItem from="1736035805349" duration="14000" />
     </task>
     <servers />
   </component>

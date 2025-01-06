@@ -7,13 +7,13 @@ class Mail(BaseModel):
     class Config:
         schema_extra = {
             "example": {
-                "email": "test@gmail.com",
+                "email": "test_user@mail.com",
             }
         }
 
 class MailResponse(BaseModel):
     status: bool
-    hash: Optional[str]
+    hash: Optional[str] = None
 
     class Config:
         schema_extra = {

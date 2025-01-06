@@ -1,6 +1,8 @@
 from jose import jwt
-from models.settings import Settings
-import time
+from dotenv import load_dotenv
+import time, os
+
+load_dotenv()
 
 def create_jwt_token(user: str):
     payload = {
@@ -9,7 +11,7 @@ def create_jwt_token(user: str):
     }
     token = jwt.encode(
         payload,
-        Settings.SECRET_KEY,
+        os.getenv('SECRET_KEY'),
         algorithm="HS256"
     )
     return token

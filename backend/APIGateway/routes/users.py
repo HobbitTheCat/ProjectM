@@ -1,12 +1,14 @@
 import httpx, os
-from fastapi import APIRouter, HTTPException, Depends
+from dotenv import load_dotenv
+from fastapi import APIRouter, HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
-from starlette import status
 from typing import Union, List
 
 from models.schedule import Group, Teacher, Location
 from models.users import User, TokenResponse, LoginPayload
 from auth.token_check import authenticate
+
+load_dotenv()
 
 userAuthRouter = APIRouter(
     tags=["usersAuth"]
@@ -15,12 +17,12 @@ userRouter = APIRouter(
     tags=["users"]
 )
 
-AccessControlServiceURLSignup = os.getenv("AccessControlServiceURLSignup")
-AccessControlServiceURLSignin = os.getenv("AccessControlServiceURLSignin")
-AddFavoriteGroupURL = os.getenv("AddFavoriteGroupURL")
-AddLastSearchedURL = os.getenv("AddLastSearchedURL")
-GetFavoriteGroupURL = os.getenv("GetFavoriteGroupURL")
-GetLastSearchedURL = os.getenv("GetLastSearchedURL")
+AccessControlServiceURLSignup = os.getenv("ACCESS_CONTROL_SERVICE_URL_SIGNUP")
+AccessControlServiceURLSignin = os.getenv("ACCESS_CONTROL_SERVICE_URL_SIGNIN")
+AddFavoriteGroupURL = os.getenv("ADD_FAVORITE_GROUP_URL")
+AddLastSearchedURL = os.getenv("ADD_LAST_SEARCHED_URL")
+GetFavoriteGroupURL = os.getenv("GET_FAVORITE_GROUP_URL")
+GetLastSearchedURL = os.getenv("GET_LAST_SEARCHED_URL")
 
 @userAuthRouter.post("/api/v1/user/auth/signup")
 async def signupUser(user: User) -> dict:
@@ -36,7 +38,11 @@ async def signupUser(user: User) -> dict:
         raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY,
                                 detail=f"Failed to connect to downstream service: {e}")
     except httpx.HTTPStatusError as e:
-        raise HTTPException(status_code=e.response.status_code, detail=e.response.text)
+        try:
+            errorDetail = e.response.json().get("detail", e.response.text)
+        except ValueError:
+            errorDetail = e.response.text
+        raise HTTPException(status_code=e.response.status_code, detail=errorDetail)
 
 @userAuthRouter.post("/api/v1/user/auth/signin", response_model=TokenResponse)
 async def signinUser(user: OAuth2PasswordRequestForm = Depends()) -> dict:
