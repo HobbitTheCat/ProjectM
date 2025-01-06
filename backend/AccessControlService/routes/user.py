@@ -79,7 +79,7 @@ async def signinUser(user: OAuth2PasswordRequestForm = Depends()) -> dict:
     except httpx.HTTPStatusError as e:
         raise HTTPException(status_code=e.response.status_code, detail=e.response.text)
 
-@userRouter.post("/api/v1/internal/auth/delete")
+@userRouter.post("/api/v1/internal/auth/remove")
 async def deleteUser(user: OAuth2PasswordRequestForm = Depends()) -> dict:
     try:
         async with httpx.AsyncClient() as client:

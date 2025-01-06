@@ -2,18 +2,20 @@ from fastapi import APIRouter, HTTPException, Depends, Header, status
 from models.schedule import *
 from auth.token_check import authenticate
 from typing import List, Optional, Literal
-import httpx
-import os
+import httpx, os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 scheduleRouter = APIRouter(
     tags=["schedule"]
 )
 
-DATA_PROCESS_URL_WEEK = os.getenv("DataProcessURLWeek")
-DATA_PROCESS_URL_DAY = os.getenv("DataProcessURLDay")
-DATA_PROCESS_URL_GROUP = os.getenv("DataProcessURLGroup")
-DATA_PROCESS_URL_TEACHER = os.getenv("DataProcessURLTeacher")
-DATA_PROCESS_URL_LOCATION = os.getenv("DataProcessURLocation")
+DataProcessURLWeek = os.getenv("DATA_PROCESS_URL_WEEK")
+DataProcessURLDay = os.getenv("DATA_PROCESS_URL_DAY")
+DataProcessURLGroup = os.getenv("DATA_PROCESS_URL_GROUP")
+DataProcessURLTeacher = os.getenv("DATA_PROCESS_URL_TEACHER")
+DataProcessURLocation = os.getenv("DATA_PROCESS_URL_LOCATION")
 
 async def get_schedule(url:str, params: EventRequest, token: str):
     try:

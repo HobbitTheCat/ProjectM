@@ -45,7 +45,7 @@ async def testUserAddExist(client = httpx.AsyncClient(base_url="http://0.0.0.0:8
         "Content-Type": "application/json",
     }
     testResponse = {
-        "status":"User creation failed"
+        "status":"User already exist"
     }
     response = await client.post(url="/api/v1/internal/data/create-user", json=payload, headers=headers)
     assert response.status_code == 200
@@ -99,7 +99,7 @@ async def testDeleteNotSuccessUser(client = httpx.AsyncClient(base_url="http://0
         "Content-Type": "application/json",
     }
     testResponse = {
-        "status":"User removal failed"
+        "status":"User removal failed, user not found"
     }
     response = await client.post(url="/api/v1/internal/data/remove-user", json=payload, headers=headers)
     assert response.status_code == 200

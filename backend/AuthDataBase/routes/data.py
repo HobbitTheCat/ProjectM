@@ -21,7 +21,7 @@ async def create_user(user: User) -> dict:
     with DataBase() as db:
         if db.insertUser(user.email, user.password):
             return {"status": "User created successfully"}
-    return {"status": "User already exists"}
+    return {"status": "User already exist"}
 
 @dataRouter.post("/api/v1/internal/data/remove-user")
 async def delete_user(user: User) -> dict:
