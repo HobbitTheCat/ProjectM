@@ -1,0 +1,49 @@
+services:
+  auth-database-service:
+    build:
+      context: ./AuthDataBase
+    container_name: auth-database
+    volumes:
+      - ./AuthDataBase/dataBase:/app/db
+    environment:
+      - DATABASE_PATH=/app/db/userDataBase.db
+    networks:
+      - internal-network
+
+  access-control-service:
+    build:
+      context: ./AccessControlService
+    container_name: access-control
+    volumes:
+      - ./AccessControlService/.env:/app/.env
+    networks:
+      - internal-network
+    depends_on:
+      - auth-database-service
+
+  mock-service:
+    build:
+      context: ./mockService
+    container_name: mock
+    volumes:
+      - ./mockService/.env:/app/.env
+    networks:
+      - internal-network
+
+  api-gateway-service:
+    build:
+      context: ./APIGateway
+    container_name: api-gateway
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./APIGateway/.env:/app/.env
+    networks:
+      - internal-network
+    depends_on:
+      - access-control-service
+      - mock-service
+
+networks:
+  internal-network:
+    driver: bridge

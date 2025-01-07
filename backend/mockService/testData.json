@@ -1,0 +1,68 @@
+{
+  "week_schedule":{
+    "date" : "2025-01-06",
+    "weekSchedule":
+      [
+        {
+          "date": "2025-01-06",
+          "events": [
+            {"timeStart": "15:45", "timeEnd": "17:45", "summary":"Info 4C", "location": ["BERNARD"], "teacher":  ["LECLERCQ ERIC"], "group": ["IE4", "MI4"]}
+          ]
+        },
+        {
+          "date": "2025-01-07",
+          "events": []
+        },
+        {
+          "date": "2025-01-08",
+          "events": [
+            {"timeStart": "10:15", "timeEnd": "12:15", "summary":"Math 4A", "location": ["GEVREY"], "teacher":  ["COUTURE OLIVIER"], "group": ["MI4", "MM4", "MP4"]}
+          ]
+        },
+        {
+          "date": "2025-01-09",
+          "events": [
+            {"timeStart": "08:00", "timeEnd": "09:30", "summary":"Info 4B", "location": ["PARIS"], "teacher":  ["LECLERCQ ERIC"], "group": ["IE4", "MI4"]},
+            {"timeStart": "10:15", "timeEnd": "12:15", "summary":"Math 4A", "location": ["RECOURA"], "teacher":  ["COUTURE OLIVIER"], "group": ["MI4", "MM4", "MP4"]}
+          ]
+        },
+        {
+          "date": "2025-01-10",
+          "events": [
+            {"timeStart": "10:15", "timeEnd": "12:15", "summary":"Math 4B", "location": ["RECOURA"], "teacher":  ["FAENZI DANIELE"], "group": ["MI4", "MM4", "MP4"]},
+            {"timeStart": "13:30", "timeEnd": "13:30", "summary":"Info 4A", "location": ["GEVREY"], "teacher":  ["BAILLEUX OLIVIER"], "group": ["IE4", "MI4"]}
+          ]
+        }
+      ]
+},
+  "day_schedule": {
+      "date": "2025-01-06",
+      "events": [
+        {"timeStart": "15:45", "timeEnd": "17:45", "summary":"Info 4C", "location": ["BERNARD"], "teacher":  ["LECLERCQ ERIC"], "group": ["IE4", "MI4"]}
+      ]
+    },
+  "group_list": [
+    {"group": "L2"},{"group": "MI4"},{"group": "MI4-01"},{"group": "MI4-02"},{"group": "MI4-03"},
+    {"group": "MI4-011"},{"group": "MI4-012"},{"group": "MI4-021"},{"group": "MI4-022"},{"group": "MI4-031"},{"group": "MI4-032"},
+    {"group": "MM4"},{"group": "MM4-M"},{"group": "MM4-I"},{"group": "MM4-I1"},{"group": "MM4-I2"},{"group": "MM4-I3"},{"group": "MM4-I11"},{"group": "MM4-I12"},
+    {"group": "MM4-I21"},{"group": "MM4-I22"},{"group": "MM4-I31"},{"group": "MM4-I32"},
+    {"group": "MM4-M"},{"group": "MM4-M1"},{"group": "MM4-M2"},{"group": "MM4-M3"},{"group": "MM4-M21"},{"group": "MM4-M22"},{"group": "MM4-M31"},{"group": "MM4-M32"}
+  ],
+  "teacher_list": [
+    {"teacher": "FAENZI DANIELE"},{"teacher": "LECLERCQ ERIC"},{"teacher": "COUTURE OLIVIER"},{"teacher": "BAILLEUX OLIVIER"}
+  ],
+  "location_list": [
+    {"location":  "A101"},{"location":  "A102"},{"location":  "A111"},{"location":  "A109"},{"location":  "A110"},{"location":  "A201"},
+    {"location":  "PARIS"},{"location":  "RECOURA"},{"location":  "GEVREY"},{"location":  "B201"},{"location":  "C110"},{"location":  "AS07"}
+  ],
+  "favorite_list": {
+    "items": [
+      {"location": "AS07"}, {"teacher": "BAILLEUX OLIVIER"}, {"group": "MI4-06"}, {"group": "L2"}, [{"group":  "MI4-04"}, {"location":  "A110"}]
+    ]
+  },
+  "last_searched": {
+      "items": [
+      {"teacher":"ROSSE MATHIEU"}, {"location":"A110"}, {"group": "IE4-04"}, [{"group":  "MI4-04"}, {"group": "IE4-05"}]
+    ]
+  }
+}
