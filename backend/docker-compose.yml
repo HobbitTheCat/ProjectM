@@ -21,6 +21,15 @@ services:
     depends_on:
       - auth-database-service
 
+  mock-service:
+    build:
+      context: ./mockService
+    container_name: mock
+    volumes:
+      - ./mockService/.env:/app/.env
+    networks:
+      - internal-network
+
   api-gateway-service:
     build:
       context: ./APIGateway
@@ -33,6 +42,7 @@ services:
       - internal-network
     depends_on:
       - access-control-service
+      - mock-service
 
 networks:
   internal-network:

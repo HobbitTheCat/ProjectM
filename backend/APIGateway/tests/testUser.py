@@ -1,6 +1,4 @@
-import pytest
-import httpx
-
+import pytest, httpx
 
 @pytest.mark.asyncio
 async def testSignup(client = httpx.AsyncClient(base_url="http://0.0.0.0:8000")) -> None:
@@ -44,7 +42,7 @@ async def testCorrectSignIn(client = httpx.AsyncClient(base_url="http://0.0.0.0:
     assert response.json()["token_type"] == "Bearer"
 
 @pytest.mark.asyncio
-async def testIncorrectUserSignin(client = httpx.AsyncClient(base_url="http://localhost:8000")) -> None:
+async def testIncorrectUserSignIn(client = httpx.AsyncClient(base_url="http://localhost:8000")) -> None:
     payload = {
         "username": "this_user_does_not_exist@apigateway.com",
         "password": "ThisIsATestOfSignupPassword"
@@ -62,7 +60,7 @@ async def testIncorrectUserSignin(client = httpx.AsyncClient(base_url="http://lo
     assert response.json() == testResponse
 
 @pytest.mark.asyncio
-async def testIncorrectPasswordSignin(client=httpx.AsyncClient(base_url="http://0.0.0.0:8000")) -> None:
+async def testIncorrectPasswordSignIn(client=httpx.AsyncClient(base_url="http://0.0.0.0:8000")) -> None:
     payload = {
         "username": "this_user_is_a_test_of_signup@apigateway.com",
         "password": "NotTightPassword",

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, Header, status
+from fastapi import APIRouter, HTTPException, Depends, status
 from models.schedule import *
 from auth.token_check import authenticate
 from typing import List, Optional, Literal
@@ -17,7 +17,7 @@ DataProcessURLGroup = os.getenv("DATA_PROCESS_URL_GROUP")
 DataProcessURLTeacher = os.getenv("DATA_PROCESS_URL_TEACHER")
 DataProcessURLocation = os.getenv("DATA_PROCESS_URL_LOCATION")
 
-async def get_schedule(url:str, params: EventRequest, token: str):
+async def get_info(url:str, params, token: str): # =Depends() под вопросом
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(
@@ -28,42 +28,31 @@ async def get_schedule(url:str, params: EventRequest, token: str):
             response.raise_for_status()
             return response.json()
     except httpx.RequestError as e:
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=f"Failed to connect to downstream service: {e}")
+        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY,
+                                detail=f"Failed to connect to downstream service: {e}")
     except httpx.HTTPStatusError as e:
-        raise HTTPException(status_code=e.response.status_code, detail=e.response.text)
+        try:
+            errorDetail = e.response.json().get("detail", e.response.text)
+        except ValueError:
+            errorDetail = e.response.text
+        raise HTTPException(status_code=e.response.status_code, detail=errorDetail)
 
-@scheduleRouter.get("/api/v1/schedule/week", response_model=List[Event])
+@scheduleRouter.get("/api/v1/schedule/week", response_model=WeekSchedule)
 async def get_schedules_week(params:EventRequest = Depends(), token: str = Depends(authenticate)):
-    return await get_schedule(DataProcessURLWeek, params, token)
+    return await get_info(DataProcessURLWeek, params, token)
 
-@scheduleRouter.get("/api/v1/schedule/day", response_model=List[Event])
+@scheduleRouter.get("/api/v1/schedule/day", response_model=DaySchedule)
 async def get_schedules_day(params:EventRequest = Depends(), token: str = Depends(authenticate)):
-    return await get_schedule(DataProcessURLDay, params, token)
+    return await get_info(DataProcessURLDay, params, token)
 
-async def get_lists(url:str, sort:Optional[Literal["year", "alphabet", "wing"]], token: str):
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.get(
-                url,
-                params={"sort": sort} if sort else {},
-                headers={"Authorization": f"Bearer {token}"}
-            )
-            response.raise_for_status()
-            return response.json()
-    except httpx.RequestError as e:
-        raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=f"Failed to connect to downstream service: {e}")
-    except httpx.HTTPStatusError as e:
-        raise HTTPException(status_code=e.response.status_code, detail=e.response.text)
+@scheduleRouter.get("/api/v1/group-list", response_model=List[Group])
+async def get_list_groups(sort:SortGroup = Depends(), token: str = Depends(authenticate)):
+    return await get_info(DataProcessURLGroup, sort, token)
 
+@scheduleRouter.get("/api/v1/teacher-list", response_model=List[Teacher])
+async def get_list_teacher(sort:SortTeacher = Depends(), token: str = Depends(authenticate)):
+    return await get_info(DataProcessURLTeacher, sort, token)
 
-@scheduleRouter.get("/api/v1/groups", response_model=List[Group])
-async def get_list_groups(sort:Optional[Literal["year", "alphabet"]], token: str = Depends(authenticate)):
-    return await get_lists(DataProcessURLGroup, sort, token)
-
-@scheduleRouter.get("/api/v1/teachers", response_model=List[Teacher])
-async def get_list_teacher(sort:Optional[Literal["alphabet"]], token: str = Depends(authenticate)):
-    return await get_lists(DataProcessURLTeacher, sort, token)
-
-@scheduleRouter.get("api/v1/location", response_model=List[Location])
-async def get_list_location(sort:Optional[Literal["wing", "alphabet"]], token: str = Depends(authenticate)):
-    return await get_lists(DataProcessURLocation, sort, token)
+@scheduleRouter.get("/api/v1/location-list", response_model=List[Location])
+async def get_list_location(sort:SortLocation = Depends(), token: str = Depends(authenticate)):
+    return await get_info(DataProcessURLocation, sort, token)

@@ -1,38 +1,5 @@
-from typing import List, Optional, Literal, Union
 from pydantic import BaseModel, Field
-
-class Location(BaseModel):
-    location: str
-
-    class Config:
-        schema_extra = {
-            "example": {
-                "location": "A104"
-            }
-        }
-
-class Teacher(BaseModel):
-    teacher: str
-
-    class Config:
-        schema_extra = {
-            "example": {
-                "teacher": "GILLET ANNABELLE"
-            }
-        }
-
-class Group(BaseModel):
-    group: str
-
-    class Config:
-        schema_extra = {
-            "example": {
-                "group": "PC3"
-            }
-        }
-
-class MixedItems(BaseModel):
-    items: List[Union[Group, Teacher, Location, List[Union[Group, Teacher, Location]]]]
+from typing import List, Optional, Literal, Union
 
 class Event(BaseModel):
     timeStart: str = Field(..., pattern=r"^\d{2}:\d{2}", description="Time start of event in forms: HH:MM")
@@ -50,23 +17,23 @@ class WeekSchedule(BaseModel):
     date: str = Field(..., pattern=r"^\d{4}-\d{2}-\d{2}", description="Date of first day of week")
     weekSchedule: List[DaySchedule] = Field(..., description="List of week schedule")
 
+class Location(BaseModel):
+    location: str
+
+class Teacher(BaseModel):
+    teacher: str
+
+class Group(BaseModel):
+    group: str
+
+class MixedItems(BaseModel):
+    items: List[Union[Group, Teacher, Location, List[Union[Group, Teacher, Location]]]]
 
 class EventRequest(BaseModel):
     date: str
     location: Optional[List[str]] = None
     teacher: Optional[List[str]] = None
     group: Optional[List[str]] = None
-
-    class Config:
-        schema_extra = {
-            "examples": {
-                "date":"2025-01-08",
-                "summary": "Phys3B",
-                "location": ["A104", "A105"],
-                "teacher": ["GILLET ANNABELLE"],
-                "group": ["PC3"]
-            }
-        }
 
 class SortGroup(BaseModel):
     sort: Optional[Literal["year", "alphabet"]] = None

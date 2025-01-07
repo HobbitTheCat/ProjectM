@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordRequestForm
 from typing import Union, List
 
-from models.schedule import Group, Teacher, Location
+from models.schedule import MixedItems
 from models.users import User, TokenResponse, LoginPayload
 from auth.token_check import authenticate
 
@@ -91,12 +91,12 @@ async def send_post_request(url: str, data: dict, token: str) -> dict:
         raise HTTPException(status_code=e.response.status_code, detail=e.response.text)
 
 @userRouter.post("/api/v1/user/favorite")
-async def addGroupFavorite(group: Group, token: str = Depends(authenticate)) -> dict:
+async def addGroupFavorite(group: MixedItems, token: str = Depends(authenticate)) -> dict:
     return await send_post_request(AddFavoriteGroupURL, group.model_dump(), token)
 
 @userRouter.post("/api/v1/user/last-searched")
-async def addLastSearched(lastSearched: Union[Group, Teacher, Location], token: str = Depends(authenticate)):
-    return await send_post_request(AddLastSearchedURL, lastSearched.model_dump(), token)
+async def addLastSearched(last_searched: MixedItems, token: str = Depends(authenticate)):
+    return await send_post_request(AddLastSearchedURL, last_searched.model_dump(), token)
 
 async def send_get_request(url: str, token: str) -> dict:
     try:
@@ -112,10 +112,10 @@ async def send_get_request(url: str, token: str) -> dict:
     except httpx.HTTPStatusError as e:
         raise HTTPException(status_code=e.response.status_code, detail=e.response.text)
 
-@userRouter.get("/api/v1/user/favorite", response_model=List[Group])
+@userRouter.get("/api/v1/user/favorite", response_model=MixedItems)
 async def favorite(token: str = Depends(authenticate)):
     return await send_get_request(GetFavoriteGroupURL, token)
 
-@userRouter.get("/api/v1/user/last-searched", response_model=Union[List[Group], List[Teacher], List[Location]])
+@userRouter.get("/api/v1/user/last-searched", response_model=MixedItems)
 async def lastSearched(token: str = Depends(authenticate)):
     return await send_get_request(GetLastSearchedURL, token)
