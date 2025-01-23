@@ -16,6 +16,7 @@ async def testSignIn(client=httpx.AsyncClient(base_url="http://0.0.0.0:8000")) -
     assert "access_token" in response.json()
     global token
     token = response.json()["access_token"]
+    print(token)
     assert response.json()["token_type"] == "Bearer"
 
 @pytest.mark.asyncio

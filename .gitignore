@@ -2,5 +2,8 @@ backend/.venv/
 *.env
 *.db
 **/.idea/
+**/.idea
 **/.venv/
+**/.venv
 **/__pycach__
+**/__pycach__/
