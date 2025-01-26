@@ -5,4 +5,4 @@ import os
 load_dotenv()
 DataBaseURL = os.getenv("DATABASE_URL")
 
-engine = create_engine(DataBaseURL, echo=True)
+engine = create_engine(DataBaseURL, echo=False)

@@ -1,9 +1,14 @@
 backend/.venv/
 *.env
 *.db
+*.ics
 **/.idea/
 **/.idea
 **/.venv/
 **/.venv
 **/__pycach__
 **/__pycach__/
+**/data
+**/data/
+**/pgadmin-data
+**/pgadmin-data/

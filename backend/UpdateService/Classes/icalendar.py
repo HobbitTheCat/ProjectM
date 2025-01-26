@@ -1,29 +1,13 @@
 from ics import Calendar
 from sqlmodel import Session
-from Models.model import Event, Location, Subgroup, Direction, Teacher, Year
+from Models.model import Event, Location, Teacher, GroupTree
 from Classes.database import OperationDB
 from datetime import datetime
-from dotenv import load_dotenv, dotenv_values
-import httpx, os, pytz, hashlib
-
-def getYearFromDirection(directionName: str, odb, year = None):
-    if year is None:
-        semester = int(directionName[-1])
-        if semester <= 2:
-            year = odb.create_year(Year(name="L1"))
-        elif semester <= 4:
-            year = odb.create_year(Year(name="L2"))
-        else:
-            year = odb.create_year(Year(name="L3"))
-        return year
-    return year
-
-def getDirectionFromSubgroup(subgroupName: str, odb):
-    subgroup = subgroupName.split("-")[0]
-
+from dotenv import dotenv_values,load_dotenv
+import httpx, os, pytz, hashlib, json
 
 """
-    Выполняет http запрос на сервер с расписанием
+    Exécute une requête http vers un serveur avec un calendrier.
 """
 def getEventsList(path):
     with httpx.Client() as client:
@@ -32,58 +16,23 @@ def getEventsList(path):
     return calendar
 
 """
-    Создание хэша из 
-    Названия + Дня + Времени начала + Времени конца + локации + профессора + года + направления + подгруппы
+    Création d'un hachage de 
+    Nom + Jour + Heure de début + Heure de fin + Lieu + Professeur + Année + Direction + Sous-groupe
 """
 def createHash(event_icl):
     string = event_icl.name + str(event_icl.day) + str(event_icl.time_start) + str(event_icl.time_end)
     string += ''.join(map(str, event_icl.location))
     string += ''.join(map(str, event_icl.teacher))
-    string += ''.join(map(str, event_icl.year))
-    string += ''.join(map(str, event_icl.direction))
-    string += ''.join(map(str, event_icl.subgroup))
+    string += ''.join(map(str, event_icl.group))
     string.replace(' ', '')
     string = hashlib.sha256(string.encode()).hexdigest()
     return string
 
 """
-    Создание объекта урока
-    Добавить создание связей между группами
+    Créer un objet de event
 """
-def createObject(event_icl, odb, lastDetection, event_hash):
-
-    locationList = []
-    teacherList = []
-    subgroupList =[]
-    directionList = []
-    yearList = []
-
-    for location in event_icl.location:
-        locObject = Location(name=location)
-        status = odb.check_location_existence(locObject)
-        locationList.append(status if status else locObject)
-
-    for teacher in event_icl.teacher:
-        teacherObject = Teacher(name=teacher)
-        status = odb.check_teacher_existence(teacherObject)
-        teacherList.append(status if status else teacherObject)
-
-    for subgroup in event_icl.subgroup:
-        subgroupObject = Subgroup(name=subgroup)                # добавить вычисление индекса направления
-        status = odb.check_subgroup_existence(subgroupObject)
-        subgroupList.append(status if status else subgroupObject)
-
-    for direction in event_icl.direction:
-        directionObject = Direction(name=direction, yearList=[getYearFromDirection(direction, odb)])             # добавить вычисление индекса года
-        status = odb.check_direction_existence(directionObject)
-        directionList.append(status if status else directionObject)
-
-    for year in event_icl.year:
-        yearObject = Year(name=year)
-        status = odb.check_year_existence(yearObject)
-        yearList.append(status if status else yearObject)
-
-    return Event(
+def createObject(event_icl, odb:OperationDB, lastDetection, event_hash):
+    eventObj = Event(
         day = event_icl.day,
         time_start = event_icl.time_start,
         time_end = event_icl.time_end,
@@ -91,63 +40,104 @@ def createObject(event_icl, odb, lastDetection, event_hash):
 
         last_detection = lastDetection,
         hash = event_hash,
-
-        locations = locationList,
-        teachers = teacherList,
-        subgroups = subgroupList,
-        directions = directionList,
-        years = yearList,
     )
+
+    for location in event_icl.location:
+        locObject = Location(name=location)
+        eventObj.location.append(odb.create_location(locObject))
+
+    for teacher in event_icl.teacher:
+        teacherObject = Teacher(name=teacher)
+        eventObj.teacher.append(odb.create_teacher(teacherObject))
+
+    for group in event_icl.group:
+        groupObject = GroupTree(name=group)
+        eventObj.group.append(odb.create_group(groupObject))
+
+    return eventObj
+
 """
-    Эта функция создает хэш затем пытается найти событие по нему
-    В случае успеха меняет индекс последнего обнаружения
-    В случае неудачи передает поиск или создание объекта классу базы данных
+    Cette fonction crée un hachage puis tente de trouver l'événement à partir de ce hachage
+    En cas de succès, elle modifie l'index de la dernière découverte.
+    En cas d'échec, elle transmet la recherche ou la création d'objet à la classe de base de données.
 """
 def searchEvent(event_icl, odb, lastDetection):
     event_hash = createHash(event_icl)
     eventObj = odb.check_event_existence_hash(event_hash)
-    if eventObj:
+    if not eventObj is None:
         eventObj.last_detection = lastDetection
+        print("Événement trouvé par hachage")
         return
+
     eventObj = createObject(event_icl, odb, lastDetection, event_hash)
+    print("Создался объект")
     odb.create_event(eventObj) # тут происходит создание нового или дополнение старого объекта
 
 """
-    Вносит новые поля в событие
-    ДОПОЛНИТЬ ИСПРАВЛЕНЕИМ ПРЕДМЕТОВ И ЛОКАЦИЙ
+    Introduit de nouveaux champs dans l'événement
 """
-def eventModification(event_ics):
+def replaceLocationExceptions(event_ics, load):
+    location = event_ics.location
+    exceptions = load.get("locations", [])
+    for key, value in exceptions.items():
+        location = location.replace(key, value)
+    event_ics.location = location.split("|")
+
+def replaceTeacherExceptions(event_ics, load):
+    teachers = event_ics.teacher
+    exceptions = load.get("teachers", [])
+    for teacher in teachers:
+        for key, value in exceptions.items():
+            teacher = teacher.replace(key, value)
+    event_ics.teacher = teachers
+
+def replaceGroupExceptions(event_ics, load):
+    groups = event_ics.group
+    exceptions = load.get("groups", [])
+    for group in groups:
+        for key, value in exceptions.items():
+            group = group.replace(key, value)
+    event_ics.group = groups
+
+
+def eventModification(event_ics, load):
     begin = datetime.fromisoformat(str(event_ics.begin)).astimezone(pytz.timezone("Europe/Paris"))
     event_ics.time_end = datetime.fromisoformat(str(event_ics.end)).astimezone(pytz.timezone("Europe/Paris")).time()
     event_ics.day = begin.date()
     event_ics.time_start = begin.time()
 
     event_ics.description = event_ics.description.split("\n")[2:-2]
+    event_ics.group = []
     event_ics.teacher = []
-    event_ics.year = ''
-    event_ics.direction = []
-    event_ics.subgroup = []
 
     for ell in event_ics.description:
         if "Parcours" in ell:
-            event_ics.direction.append(ell.replace("Parcours ", ""))
+            event_ics.group.append(ell.replace("Parcours ", ""))
         elif not any(char.isdigit() for char in ell):
             event_ics.teacher.append(ell)
         elif " " not in ell:
-            event_ics.subgroup.append(ell)
+            event_ics.group.append(ell)
         else:
-            event_ics.year = ell
+            event_ics.group.append(ell)
 
-def fullSearch(envName, lastDetection, engine):
+    replaceLocationExceptions(event_ics, load)
+    replaceTeacherExceptions(event_ics, load)
+    replaceGroupExceptions(event_ics, load)
+
+
+def fullSearch(envEventPath, lastDetection, engine, load):
     with Session(engine) as session:
-        odb = OperationDB(session)
-        c = getEventsList(os.getenv(envName))
-        for event in c.events:
-            eventModification(event)
-            searchEvent(event, odb, lastDetection)
+        with OperationDB(session) as odb:
+            c = getEventsList(os.getenv(envEventPath))
+            for event in c.events:
+                eventModification(event, load)
+                searchEvent(event, odb, lastDetection)
 
-def general(engine):
-    # load_dotenv() добавить эквивалентность некоторых названий
-    config = dotenv_values()
+def general(engine, lastDetection):
+    with open("exceptions.json", "r") as file:
+        load = json.load(file)
 
-    print(config.keys())
+    configs = dotenv_values()
+    for config in configs:
+        if config != "DATABASE_URL":
+            fullSearch(config, lastDetection, engine, load)
