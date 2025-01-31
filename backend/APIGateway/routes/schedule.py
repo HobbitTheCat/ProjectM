@@ -1,7 +1,7 @@
-from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi import APIRouter, HTTPException, Depends, status, Query
 from models.schedule import *
 from auth.token_check import authenticate
-from typing import List, Optional, Literal
+from typing import List
 import httpx, os
 from dotenv import load_dotenv
 
@@ -37,22 +37,35 @@ async def get_info(url:str, params, token: str): # =Depends() под вопро�
             errorDetail = e.response.text
         raise HTTPException(status_code=e.response.status_code, detail=errorDetail)
 
-@scheduleRouter.get("/api/v1/schedule/week", response_model=WeekSchedule)
-async def get_schedules_week(params:EventRequest = Depends(), token: str = Depends(authenticate)):
-    return await get_info(DataProcessURLWeek, params, token)
+#
+@scheduleRouter.get("/api/v1/schedule/week", response_model=List[EventResponse])
+async def get_schedules_week(date:str,
+                             location:Optional[List[str]] = Query(None),
+                             group:Optional[List[str]] = Query(None),
+                             teacher:Optional[List[str]] = Query(None),
+                             token: str = Depends(authenticate)):
+    model = EventRequest(date=date,location=location,group=group,teacher=teacher)
+    return await get_info(DataProcessURLWeek, model, token)
 
-@scheduleRouter.get("/api/v1/schedule/day", response_model=DaySchedule)
-async def get_schedules_day(params:EventRequest = Depends(), token: str = Depends(authenticate)):
-    return await get_info(DataProcessURLDay, params, token)
+@scheduleRouter.get("/api/v1/schedule/day", response_model=List[EventResponse])
+async def get_schedules_day(date:str,
+                            location:Optional[List[str]] = Query(None),
+                            group:Optional[List[str]] = Query(None),
+                            teacher:Optional[List[str]] = Query(None),
+                            token: str = Depends(authenticate)):
+    model = EventRequest(date=date,location=location,group=group,teacher=teacher)
+    return await get_info(DataProcessURLDay, model, token)
 
-@scheduleRouter.get("/api/v1/group-list", response_model=List[Group])
+
+
+@scheduleRouter.get("/api/v1/group-list", response_model=List[UniversalM])
 async def get_list_groups(sort:SortGroup = Depends(), token: str = Depends(authenticate)):
     return await get_info(DataProcessURLGroup, sort, token)
 
-@scheduleRouter.get("/api/v1/teacher-list", response_model=List[Teacher])
+@scheduleRouter.get("/api/v1/teacher-list", response_model=List[UniversalM])
 async def get_list_teacher(sort:SortTeacher = Depends(), token: str = Depends(authenticate)):
     return await get_info(DataProcessURLTeacher, sort, token)
 
-@scheduleRouter.get("/api/v1/location-list", response_model=List[Location])
+@scheduleRouter.get("/api/v1/location-list", response_model=List[UniversalM])
 async def get_list_location(sort:SortLocation = Depends(), token: str = Depends(authenticate)):
     return await get_info(DataProcessURLocation, sort, token)

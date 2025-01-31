@@ -1,4 +1,8 @@
 import uvicorn
+from contextlib import asynccontextmanager
+from sqlalchemy import text
+from sqlmodel import SQLModel, Session
+from database import engineA
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
@@ -7,7 +11,16 @@ from routes.user import userRouter
 
 load_dotenv()
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    SQLModel.metadata.create_all(engineA)
+    with Session(engineA) as session:
+        session.execute(text("GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO acs_service;"))
+        session.execute(text("GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO acs_service;"))
+        session.commit()
+    yield
+
+app = FastAPI(lifespan=lifespan)
 origins = ["*"]
 
 app.add_middleware(

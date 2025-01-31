@@ -15,6 +15,3 @@ class User(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str
-
-class Mail(BaseModel):
-    email: EmailStr

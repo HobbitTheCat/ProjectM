@@ -7,4 +7,5 @@ test.py
 /tests/testData.py
 /test/testUser.py
 createTestUser.http
+test.js
 .env
