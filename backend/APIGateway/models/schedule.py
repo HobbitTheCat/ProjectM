@@ -2,53 +2,51 @@ from typing import List, Optional, Literal, Union
 from pydantic import BaseModel, Field
 
 class Location(BaseModel):
-    location: str
-
+    name: str
+    capacity: Optional[int] = None
     class Config:
         schema_extra = {
             "example": {
-                "location": "A104"
+                "name": "A104",
+                "capacity": 100
             }
         }
 
 class Teacher(BaseModel):
-    teacher: str
+    name: str
 
     class Config:
         schema_extra = {
             "example": {
-                "teacher": "GILLET ANNABELLE"
+                "name": "GILLET ANNABELLE"
             }
         }
 
 class Group(BaseModel):
-    group: str
+    name: str
 
     class Config:
         schema_extra = {
             "example": {
-                "group": "PC3"
+                "name": "PC3"
             }
         }
+
+class UniversalM(BaseModel):
+    name: str
 
 class MixedItems(BaseModel):
     items: List[Union[Group, Teacher, Location, List[Union[Group, Teacher, Location]]]]
 
-class Event(BaseModel):
-    timeStart: str = Field(..., pattern=r"^\d{2}:\d{2}", description="Time start of event in forms: HH:MM")
-    timeEnd: str = Field(..., pattern=r"^\d{2}:\d{2}", description="Time end of event in for HH:MM")
-    summary: str = Field(..., description="Event summary")
-    location: List[str] = Field(..., description="Event location")
-    teacher: Optional[List[str]] = Field(None, description="Teacher")
-    group: Optional[List[str]] = Field(None, description="Group")
+class EventResponse(BaseModel):
+    day: str
+    time_start: str
+    time_end: str
 
-class DaySchedule(BaseModel):
-    date: str = Field(..., pattern=r"^\d{4}-\d{2}-\d{2}",description="Date of day")
-    events: List[Event] = Field(..., description="List of events")
-
-class WeekSchedule(BaseModel):
-    date: str = Field(..., pattern=r"^\d{4}-\d{2}-\d{2}", description="Date of first day of week")
-    weekSchedule: List[DaySchedule] = Field(..., description="List of week schedule")
+    name: str
+    location: List[Location]
+    teacher: List[Teacher]
+    group: List[Group]
 
 
 class EventRequest(BaseModel):
@@ -69,10 +67,8 @@ class EventRequest(BaseModel):
         }
 
 class SortGroup(BaseModel):
-    sort: Optional[Literal["year", "alphabet"]] = None
-
+    sort: Optional[Literal["asc", "desc"]] = None
 class SortTeacher(BaseModel):
-    sort: Optional[Literal["alphabet"]] = None
-
+    sort: Optional[Literal["asc", "desc"]] = None
 class SortLocation(BaseModel):
-    sort: Optional[Literal["wing", "alphabet"]] = None
+    sort: Optional[Literal["asc", "desc"]] = None

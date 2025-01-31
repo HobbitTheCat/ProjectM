@@ -3,7 +3,7 @@ from sqlmodel import Session
 from Models.model import Event, Location, Teacher, GroupTree
 from Classes.database import OperationDB
 from datetime import datetime
-from dotenv import dotenv_values,load_dotenv
+from dotenv import dotenv_values
 import httpx, os, pytz, hashlib, json
 
 """
@@ -70,7 +70,7 @@ def searchEvent(event_icl, odb, lastDetection):
         return
 
     eventObj = createObject(event_icl, odb, lastDetection, event_hash)
-    print("Создался объект")
+    print("Nouveau événement a été crée")
     odb.create_event(eventObj) # тут происходит создание нового или дополнение старого объекта
 
 """
@@ -113,13 +113,12 @@ def eventModification(event_ics, load):
     for ell in event_ics.description:
         if "Parcours" in ell:
             event_ics.group.append(ell.replace("Parcours ", ""))
-        elif not any(char.isdigit() for char in ell):
+        elif not any(char.isdigit() for char in ell) and ell.upper() == ell:
             event_ics.teacher.append(ell)
         elif " " not in ell:
             event_ics.group.append(ell)
         else:
             event_ics.group.append(ell)
-
     replaceLocationExceptions(event_ics, load)
     replaceTeacherExceptions(event_ics, load)
     replaceGroupExceptions(event_ics, load)
@@ -139,5 +138,5 @@ def general(engine, lastDetection):
 
     configs = dotenv_values()
     for config in configs:
-        if config != "DATABASE_URL":
+        if config != "DATABASE_URL" and config != "DATABASE_URL_A":
             fullSearch(config, lastDetection, engine, load)

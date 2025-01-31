@@ -1,21 +1,23 @@
-from pydantic import BaseModel, Field
-from typing import List, Optional, Literal, Union
-from models.database import Event
+from pydantic import BaseModel
+from typing import List, Optional, Literal
 
-class DaySchedule(BaseModel):
-    date: str = Field(..., pattern=r"^\d{4}-\d{2}-\d{2}",description="Date of day")
-    events: List[Event] = Field(..., description="List of events")
+class Location(BaseModel):
+    name:str
+    capacity:Optional[int]=None
+class Teacher(BaseModel):
+    name:str
+class Group(BaseModel):
+    name:str
 
-class WeekSchedule(BaseModel):
-    date: str = Field(..., pattern=r"^\d{4}-\d{2}-\d{2}", description="Date of first day of week")
-    weekSchedule: List[DaySchedule] = Field(..., description="List of week schedule")
+class EventResponse(BaseModel):
+    day: str
+    time_start: str
+    time_end: str
 
-class EventRequest(BaseModel):
-    date: str
-    location: Optional[List[str]] = None
-    teacher: Optional[List[str]] = None
-
-    group: Optional[List[str]] = None
+    name: str
+    location: List[Location]
+    teacher: List[Teacher]
+    group: List[Group]
 
 
 class SortGroup(BaseModel):

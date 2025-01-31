@@ -1,12 +1,6 @@
 import httpx
 import pytest
 
-# @pytest.mark.asyncio
-# async def testGetEvent(client=httpx.AsyncClient(base_url="http://localhost:8005")):
-#     response = await client.get("/api/v1/internal/event/day?date=2025-01-24")
-#     assert response.status_code == 200
-#     print(response.json())
-
 @pytest.mark.asyncio
 async def testGetGroups(client=httpx.AsyncClient(base_url="http://localhost:8005")):
     response = await client.get("/api/v1/internal/event/group-list")
@@ -40,3 +34,26 @@ async def testGetTeachers(client=httpx.AsyncClient(base_url="http://localhost:80
     response = await client.get("/api/v1/internal/event/teacher-list")
     assert response.status_code == 200
     print(response.json())
+
+@pytest.mark.asyncio
+async def testScheduleDay(client=httpx.AsyncClient(base_url="http://localhost:8005")):
+    response = await client.get("/api/v1/internal/event/day")
+    assert response.status_code == 422
+    response = await client.get("/api/v1/internal/event/day?date=2025-01-40")
+    assert response.status_code == 422
+    response = await client.get("/api/v1/internal/event/day?date=2025-01-27")
+    assert response.status_code == 200
+    print("\ndata", response.json())
+    response = await client.get('/api/v1/internal/event/day?date=2025-01-28&teacher=BAILLEUX OLIVIER')
+    print("data", response.json())
+    assert response.status_code == 200
+
+@pytest.mark.asyncio
+async def testScheduleWeek(client=httpx.AsyncClient(base_url="http://localhost:8005")):
+    response = await client.get("/api/v1/internal/event/week")
+    assert response.status_code == 422
+    response = await client.get("/api/v1/internal/event/week?date=2025-01-45")
+    assert response.status_code == 422
+    response = await client.get("/api/v1/internal/event/week?date=2025-01-29&group=MI4-FC")
+    assert response.status_code == 200
+    print("\nResponse", response.json())

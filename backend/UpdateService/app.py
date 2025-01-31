@@ -1,8 +1,9 @@
-from sqlmodel import Session, select, SQLModel, Relationship
+from sqlmodel import Session, SQLModel
 from Classes.icalendar import general
-from database import engine
-from datetime import datetime, date
+from database import engine, engineA
+from datetime import datetime
 from Classes.database import OperationDB
+from sqlalchemy import text
 
 def generateLastDetectionIndex():
     return int(datetime.now().timestamp())
@@ -14,12 +15,16 @@ def main():
         with OperationDB(session) as odb:
             odb.deleteObsoleteIndexes(lastDetectionIndex)
 
-def tests():
-    with Session(engine) as session:
-        with OperationDB(session) as op:
-            # op.changeLevel(["IE4-I41", "IE4-I42"], "IE4-I4")
-            op.imageRec()
+def grant_permission():
+    with Session(engineA) as session:
+        session.execute(text("GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO update_service;"))
+        session.execute(text("GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO update_service;"))
+
+        session.execute(text("GRANT SELECT ON ALL TABLES IN SCHEMA public TO data_process;"))
+        session.execute(text("GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO data_process;"))
+        session.commit()
 
 if __name__ == "__main__":
-    SQLModel.metadata.create_all(engine)
+    SQLModel.metadata.create_all(engineA)
+    grant_permission()
     main()

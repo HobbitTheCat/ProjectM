@@ -58,7 +58,7 @@ class OperationDB:
             print("Sur le point d'ajouter ", event.model_dump())
             self.session.add(event)
         else:
-            print("\nAjout de champs ", event.model_dump())
+            print("\nNeed an update ", event.model_dump())
             # dataBaseRec.add(event)
 
     def create_group(self, group: GroupTree):
@@ -130,16 +130,14 @@ class OperationDB:
             for item in items:
                 item.parent_id = parent.id
 
+    def createLevelStructure(self):
+        groupList = self.session.exec(select(GroupTree)).all()
+        for group in groupList:
+            if group.parent_id is None:
+                parentName = str(input(f"Родитель для {group.name}\n"))
+                if not parentName != "" or " " or None or "None":
+                    self.changeLevel([group.name], parentName)
 
-    # def putToNextLevel(self, child: List[GroupTree], parent: GroupTree):
-    #     parent = self.check_group_existence(parent)
-    #     if  parent is None:
-    #         return "Parent doesn't exist"
-    #     for group in child:
-    #         gr = self.check_group_existence(group)
-    #         if not gr is None:
-    #             gr.parent_id = parent.id
-    #     return
 
     def imageRec(self, currentLevelElls: List[GroupTree] = None, level = 0):
         if level == 0:
@@ -160,5 +158,5 @@ class OperationDB:
         query = select(Event).where(Event.last_detection != lastDetectionIndex)
         results = self.session.exec(query)
         for result in results:
-            print("Supprimé: " + result.model_dump())
+            print("Supprimé: ", result.model_dump())
             self.session.delete(result)
