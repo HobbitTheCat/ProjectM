@@ -1,10 +1,13 @@
 import pytest
 import httpx
 
+address = "http://0.0.0.0:8000"
+# address = "https://ube-schedule.com"
+
 token = ""
 
 @pytest.mark.asyncio
-async def testSignIn(client=httpx.AsyncClient(base_url="http://0.0.0.0:8000")) -> None:
+async def testSignIn(client=httpx.AsyncClient(base_url=address)) -> None:
     payload ={
         "username": "permanent_test_user@mock.com",
         "password": "testPassword"
@@ -22,7 +25,7 @@ async def testSignIn(client=httpx.AsyncClient(base_url="http://0.0.0.0:8000")) -
     assert response.json()["token_type"] == "Bearer"
 
 @pytest.mark.asyncio
-async def testGetWeekSchedule(client=httpx.AsyncClient(base_url="http://localhost:8000")):
+async def testGetWeekSchedule(client=httpx.AsyncClient(base_url=address)):
     headers = {
         "accept": "application/json",
         "Authorization": f"Bearer {token}"
@@ -32,7 +35,7 @@ async def testGetWeekSchedule(client=httpx.AsyncClient(base_url="http://localhos
     print(response.json())
 
 @pytest.mark.asyncio
-async def testGetDaySchedule(client=httpx.AsyncClient(base_url="http://localhost:8000")):
+async def testGetDaySchedule(client=httpx.AsyncClient(base_url=address)):
     headers = {
         "accept": "application/json",
         "Authorization": f"Bearer {token}"
@@ -47,7 +50,7 @@ async def testGetDaySchedule(client=httpx.AsyncClient(base_url="http://localhost
     print(response.json())
 
 @pytest.mark.asyncio
-async def testGetGroupList(client=httpx.AsyncClient(base_url="http://localhost:8000")):
+async def testGetGroupList(client=httpx.AsyncClient(base_url=address)):
     headers = {
         "accept": "application/json",
         "Authorization": f"Bearer {token}"
@@ -57,7 +60,7 @@ async def testGetGroupList(client=httpx.AsyncClient(base_url="http://localhost:8
     print(response.json())
 
 @pytest.mark.asyncio
-async def testGetTeacherList(client=httpx.AsyncClient(base_url="http://localhost:8000")):
+async def testGetTeacherList(client=httpx.AsyncClient(base_url=address)):
     headers = {
         "accept": "application/json",
         "Authorization": f"Bearer {token}"
@@ -67,7 +70,7 @@ async def testGetTeacherList(client=httpx.AsyncClient(base_url="http://localhost
     print(response.json())
 
 @pytest.mark.asyncio
-async def testGetLocationList(client=httpx.AsyncClient(base_url="http://localhost:8000")):
+async def testGetLocationList(client=httpx.AsyncClient(base_url=address)):
     headers = {
         "accept": "application/json",
         "Authorization": f"Bearer {token}"
@@ -77,7 +80,7 @@ async def testGetLocationList(client=httpx.AsyncClient(base_url="http://localhos
     print(response.json())
 
 @pytest.mark.asyncio
-async def testGetGroupList(client=httpx.AsyncClient(base_url="http://localhost:8000")):
+async def testGetGroupList(client=httpx.AsyncClient(base_url=address)):
     headers = {
         "accept": "application/json",
         "Authorization": f"Bearer {token}"
@@ -95,3 +98,17 @@ async def testGetGroupList(client=httpx.AsyncClient(base_url="http://localhost:8
     print(data)
     names = [item["name"] for item in data]
     assert names == sorted(names, reverse=True)
+
+@pytest.mark.asyncio
+async def testSearchItem(client=httpx.AsyncClient(base_url=address)):
+    headers = {
+        "accept": "application/json",
+        "Authorization": f"Bearer {token}"
+    }
+    response = await client.get("/api/v1/item-list?start=IS", headers=headers)
+    assert response.status_code == 200
+    print(response.json())
+
+    response = await client.get("/api/v1/item-list?start=IS&sort=asc", headers=headers)
+    assert response.status_code == 200
+    print(response.json())

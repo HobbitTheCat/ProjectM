@@ -48,12 +48,39 @@ services:
     networks:
       - internal-network
 
+  mongo-user:
+    image: mongo
+    container_name: user-data
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    volumes:
+      - ./UserDB:/data/db
+    networks:
+      - internal-network
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    command: 
+      - redis-server
+      - --requirepass
+      - ${REDIS_PASSWORD}
+    networks:
+      - internal-network
+
   access-control-service:
     build:
-      context: ./AccessControlService
+      context: ./AccessControl2.0
     container_name: access-control
     volumes:
-      - ./AccessControlService/.env:/app/.env
+      - ./AccessControl2.0/.env:/app/.env
     ports:
       - "8001:8001"
     networks:
@@ -68,21 +95,26 @@ services:
     container_name: data-process
     volumes:
       - ./DataProcess/.env:/app/.env
-#    ports:
-#      - "8005:8005"
+    ports:
+      - "8005:8005"
     networks:
       - internal-network
     depends_on:
       - postgres-events
 
-  mock-service:
+  user-service:
     build:
-      context: ./mockService
-    container_name: mock
+      context: ./UserService
+    container_name: user-service
+    ports:
+      - "8006-8006"
     volumes:
-      - ./mockService/.env:/app/.env
+      - ./UserService/.env:/app/.env
     networks:
       - internal-network
+    depends_on:
+      - mongo-user
+      - redis
 
   api-gateway-service:
     build:
@@ -96,7 +128,7 @@ services:
       - internal-network
     depends_on:
       - access-control-service
-      - mock-service
+      - user-service
       - data-process-service
 
 networks:

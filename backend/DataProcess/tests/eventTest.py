@@ -36,6 +36,13 @@ async def testGetTeachers(client=httpx.AsyncClient(base_url="http://localhost:80
     print(response.json())
 
 @pytest.mark.asyncio
+async def testItemByStart(client=httpx.AsyncClient(base_url="http://localhost:8005")):
+    response = await client.get("/api/v1/internal/event/item-list?start=IS")
+    assert response.status_code == 200
+    print(response.json())
+
+
+@pytest.mark.asyncio
 async def testScheduleDay(client=httpx.AsyncClient(base_url="http://localhost:8005")):
     response = await client.get("/api/v1/internal/event/day")
     assert response.status_code == 422
