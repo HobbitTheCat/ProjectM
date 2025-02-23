@@ -34,9 +34,12 @@ class Group(BaseModel):
 
 class UniversalM(BaseModel):
     name: str
-
+    type: Literal["Teacher","Location","Group"]
 class MixedItems(BaseModel):
-    items: List[Union[Group, Teacher, Location, List[Union[Group, Teacher, Location]]]]
+    items: List[Union[UniversalM, List[UniversalM]]]
+    id: Optional[int] = None
+# class MixedItems(BaseModel):
+#     items: List[Union[Group, Teacher, Location, List[Union[Group, Teacher, Location]]]]
 
 class EventResponse(BaseModel):
     day: str
@@ -44,9 +47,9 @@ class EventResponse(BaseModel):
     time_end: str
 
     name: str
-    location: List[Location]
-    teacher: List[Teacher]
-    group: List[Group]
+    location: List[UniversalM] # тут заменил group, teacher и location на UniversalM
+    teacher: List[UniversalM]
+    group: List[UniversalM]
 
 
 class EventRequest(BaseModel):
@@ -72,3 +75,11 @@ class SortTeacher(BaseModel):
     sort: Optional[Literal["asc", "desc"]] = None
 class SortLocation(BaseModel):
     sort: Optional[Literal["asc", "desc"]] = None
+class SortItems(BaseModel):
+    sort: Optional[Literal["asc","desc"]] = None
+class StartItems(BaseModel):
+    sort: Optional[str] = None
+
+class ItemRequest(BaseModel):
+    start: str
+    sort: Optional[str] = None

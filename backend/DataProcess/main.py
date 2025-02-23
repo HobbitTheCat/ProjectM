@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from routes.schedule import scheduleRouter
+from routes.internal import internalRouter
 load_dotenv()
 
 app = FastAPI()
@@ -18,6 +19,7 @@ app.add_middleware(
 )
 
 app.include_router(scheduleRouter)
+app.include_router(internalRouter)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8005)

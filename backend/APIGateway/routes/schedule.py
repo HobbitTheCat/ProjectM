@@ -16,8 +16,9 @@ DataProcessURLDay = os.getenv("DATA_PROCESS_URL_DAY")
 DataProcessURLGroup = os.getenv("DATA_PROCESS_URL_GROUP")
 DataProcessURLTeacher = os.getenv("DATA_PROCESS_URL_TEACHER")
 DataProcessURLocation = os.getenv("DATA_PROCESS_URL_LOCATION")
+DataProcessURLItem = os.getenv("DATA_PROCESS_URL_ITEM")
 
-async def get_info(url:str, params, token: str): # =Depends() под вопросом
+async def get_info(url:str, params, token: str):
     try:
         async with httpx.AsyncClient() as client:
             response = await client.get(
@@ -57,7 +58,6 @@ async def get_schedules_day(date:str,
     return await get_info(DataProcessURLDay, model, token)
 
 
-
 @scheduleRouter.get("/api/v1/group-list", response_model=List[UniversalM])
 async def get_list_groups(sort:SortGroup = Depends(), token: str = Depends(authenticate)):
     return await get_info(DataProcessURLGroup, sort, token)
@@ -69,3 +69,9 @@ async def get_list_teacher(sort:SortTeacher = Depends(), token: str = Depends(au
 @scheduleRouter.get("/api/v1/location-list", response_model=List[UniversalM])
 async def get_list_location(sort:SortLocation = Depends(), token: str = Depends(authenticate)):
     return await get_info(DataProcessURLocation, sort, token)
+
+@scheduleRouter.get("/api/v1/item-list", response_model=List[UniversalM])
+async def get_list_item(start: str = Query(None),
+                        sort: SortItems = Depends(), token: str = Depends(authenticate)):
+    model = ItemRequest(start=start,sort=sort.sort)
+    return await get_info(DataProcessURLItem, model, token)

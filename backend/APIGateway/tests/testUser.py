@@ -1,36 +1,15 @@
-import pytest, httpx
+import httpx, pytest
+
+address = "http://0.0.0.0:8000"
+# address = "http://ube-schedule.com"
+
+token = ""
 
 @pytest.mark.asyncio
-async def testSignup(client = httpx.AsyncClient(base_url="http://0.0.0.0:8000")) -> None:
-    payload = {
-        "email": "this_user_is_a_test_of_signup@apigateway.com",
-        "password": "ThisIsATestOfSignupPassword"
-    }
-    headers = {"Content-Type": "application/json"}
-    testResponse = {"status": "User created successfully"}
-
-    response = await client.post(url="/api/v1/user/auth/signup", json=payload, headers=headers)
-    assert response.status_code == 200
-    assert response.json() == testResponse
-
-@pytest.mark.asyncio
-async def testIncorrectUserSignup(client = httpx.AsyncClient(base_url="http://0.0.0.0:8000")) -> None:
-    payload = {
-        "email": "this_user_is_a_test_of_signup@apigateway.com",
-        "password": "ThisIsATestOfSignupPassword",
-    }
-    headers = {"Content-Type": "application/json"}
-    testResponse = {"detail": "This email is already registered"}
-
-    response = await client.post(url="/api/v1/user/auth/signup", json=payload, headers=headers)
-    assert response.status_code == 409
-    assert response.json() == testResponse
-
-@pytest.mark.asyncio
-async def testCorrectSignIn(client = httpx.AsyncClient(base_url="http://0.0.0.0:8000")) -> None:
-    payload = {
-        "username": "this_user_is_a_test_of_signup@apigateway.com",
-        "password": "ThisIsATestOfSignupPassword",
+async def testSignIn(client=httpx.AsyncClient(base_url=address)) -> None:
+    payload ={
+        "username": "permanent_test_user@mock.com",
+        "password": "testPassword"
     }
     headers = {
         "accept": "application/json",
@@ -39,73 +18,134 @@ async def testCorrectSignIn(client = httpx.AsyncClient(base_url="http://0.0.0.0:
     response = await client.post(url="/api/v1/user/auth/signin", data=payload, headers=headers)
     assert response.status_code == 200
     assert "access_token" in response.json()
+    global token
+    token = response.json()["access_token"]
+    print(token)
     assert response.json()["token_type"] == "Bearer"
 
-@pytest.mark.asyncio
-async def testIncorrectUserSignIn(client = httpx.AsyncClient(base_url="http://localhost:8000")) -> None:
-    payload = {
-        "username": "this_user_does_not_exist@apigateway.com",
-        "password": "ThisIsATestOfSignupPassword"
-    }
-    headers = {
-        "accept": "application/json",
-        "Content-Type": "application/x-www-form-urlencoded"
-    }
-    testResponse = {
-        "detail": "User with email does not exist",
-    }
 
-    response = await client.post(url="/api/v1/user/auth/signin", data=payload, headers=headers)
-    assert response.status_code == 404
-    assert response.json() == testResponse
 
 @pytest.mark.asyncio
-async def testIncorrectPasswordSignIn(client=httpx.AsyncClient(base_url="http://0.0.0.0:8000")) -> None:
-    payload = {
-        "username": "this_user_is_a_test_of_signup@apigateway.com",
-        "password": "NotTightPassword",
-    }
+async def testUserRead(client=httpx.AsyncClient(base_url=address)):
     headers = {
         "accept": "application/json",
-        "Content-Type": "application/x-www-form-urlencoded"
+        "Authorization": f"Bearer {token}",
     }
-    testResponse = {
-        "detail": "Invalid details passed",
-    }
-    response = await client.post(url="/api/v1/user/auth/signin", data=payload, headers=headers)
-    assert response.status_code == 401
-    assert response.json() == testResponse
+    response = await client.get("/api/v1/user", headers=headers)
+    assert response.status_code == 200
+    print(response.json())
 
 @pytest.mark.asyncio
-async def testRemoveUserSuccess(client = httpx.AsyncClient(base_url="http://localhost:8000")) -> None:
-    payload = {
-        "username": "this_user_is_a_test_of_signup@apigateway.com",
-        "password": "ThisIsATestOfSignupPassword"
-    }
+async def testUserUpdateName(client=httpx.AsyncClient(base_url=address)):
     headers = {
         "accept": "application/json",
-        "Content-Type": "application/x-www-form-urlencoded"
+        "Authorization": f"Bearer {token}",
     }
-    testResponse = {
-        "status": "User successfully removed",
-    }
-    response = await client.post(url="/api/v1/user/auth/remove", data=payload, headers=headers)
+    payload = {"name": "Denis"}
+    testResponse = {"status": "success"}
+    response = await client.put("/api/v1/user/name", headers=headers, json=payload)
     assert response.status_code == 200
     assert response.json() == testResponse
 
 @pytest.mark.asyncio
-async def testRemoveUserFailure(client = httpx.AsyncClient(base_url="http://localhost:8000")) -> None:
-    payload = {
-        "username": "this_user_is_a_test_of_signup@accesscontrol.com",
-        "password": "ThisIsATestOfSignupPassword"
-    }
+async def testUserUpdateBirthday(client=httpx.AsyncClient(base_url=address)):
     headers = {
         "accept": "application/json",
-        "Content-Type": "application/x-www-form-urlencoded"
+        "Authorization": f"Bearer {token}",
     }
-    testResponse = {
-        "detail": "User with email does not exist",
-    }
-    response = await client.post(url="/api/v1/user/auth/remove", data=payload, headers=headers)
-    assert response.status_code == 404
+    payload = {"birthday": "2011-07-07"}
+    testResponse = {"status": "success"}
+    response = await client.put("/api/v1/user/birthday", headers=headers, json=payload)
+    assert response.status_code == 200
     assert response.json() == testResponse
+
+    # payload = {"birthday": "notADate"}
+    # response = await client.put("/api/v1/user/birthday", headers=headers, json=payload)
+    # assert response.status_code == 422
+    #
+    # payload = {"birthday": "2011-13-07"}
+    # response = await client.put("/api/v1/user/birthday", headers=headers, json=payload)
+    # assert response.status_code == 422
+
+@pytest.mark.asyncio
+async def testUserUpdateGroup(client=httpx.AsyncClient(base_url=address)):
+    headers = {
+        "accept": "application/json",
+        "Authorization": f"Bearer {token}",
+    }
+    payload = {"name": "IE4-I42"}
+    testResponse = {"status": "success"}
+    response = await client.put("/api/v1/user/group", headers=headers, json=payload)
+    assert response.status_code == 200
+    assert response.json() == testResponse
+
+@pytest.mark.asyncio
+async def testUserUpdateTheme(client=httpx.AsyncClient(base_url=address)):
+    headers = {
+        "accept": "application/json",
+        "Authorization": f"Bearer {token}",
+    }
+    payload = {"theme": "dark"}
+    testResponse = {"status": "success"}
+    response = await client.put("/api/v1/user/theme", headers=headers, json=payload)
+    assert response.status_code == 200
+    assert response.json() == testResponse
+
+    payload = {"theme": "notATheme"}
+    response = await client.put("/api/v1/user/theme", headers=headers, json=payload)
+    assert response.status_code == 422
+
+@pytest.mark.asyncio
+async def testUserUpdateFavorite(client=httpx.AsyncClient(base_url=address)):
+    headers = {
+        "accept": "application/json",
+        "Authorization": f"Bearer {token}",
+    }
+    payload = {"items": [{"name": "Mr. Smith", "type": "Teacher"},
+                         {"name": "MI4-FC", "type":"Group"},
+                         {"name": "IE4-I41", "type":"Group"}]}
+    response = await client.post("/api/v1/user/favorite", headers=headers, json=payload)
+    assert response.status_code == 404
+    print(response.json())
+    payload = {"items": [{"name": "MI4-FC", "type": "Group"},
+                         {"name": "IE4-I41", "type": "Group"}]}
+    response = await client.post("/api/v1/user/favorite", headers=headers, json=payload)
+    assert response.status_code == 200
+    print(response.json())
+
+@pytest.mark.asyncio
+async def testUserDeleteFavorite(client=httpx.AsyncClient(base_url=address)):
+    headers = {
+        "accept": "application/json",
+        "Authorization": f"Bearer {token}",
+    }
+    response = await client.delete("/api/v1/user/favorite?index=1", headers=headers)
+    assert response.status_code == 200
+    print(response.json())
+
+    response = await client.delete("/api/v1/user/favorite?index=1", headers=headers)
+    assert response.status_code == 404
+
+@pytest.mark.asyncio
+async def testAddHistory(client=httpx.AsyncClient(base_url=address)):
+    headers = {
+        "accept": "application/json",
+        "Authorization": f"Bearer {token}",
+    }
+    payload={
+        "name": "MI4-06",
+        "type": "Group"
+    }
+    response = await client.post("/api/v1/user/history", json=payload, headers=headers)
+    assert response.status_code == 200
+    print(response.json())
+
+@pytest.mark.asyncio
+async def testUserRead2(client=httpx.AsyncClient(base_url=address)):
+    headers = {
+        "accept": "application/json",
+        "Authorization": f"Bearer {token}",
+    }
+    response = await client.get("/api/v1/user", headers=headers)
+    assert response.status_code == 200
+    print(response.json())
