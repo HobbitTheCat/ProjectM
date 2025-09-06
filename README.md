@@ -104,4 +104,4 @@ docker-compose up --build
 
 ## 👥 Author
 - [Semenov Egor](https://github.com/HobbitTheCat) - Architecture, backend implementation, databases, security
-- [Piton Leo](https://github.com/Badoux17) - Front end
+- [Piton Leo](https://github.com/Badoux17) - Frontend
