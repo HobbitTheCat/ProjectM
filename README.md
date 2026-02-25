@@ -101,7 +101,10 @@ docker-compose up --build
 - Possible switch to event-driven architecture for decoupling services.
 
 ---
+## Model Frontend Figma 
+https://www.figma.com/proto/G2IlpxAks7ZCxRYwY0FsBf/Projet?node-id=0-1&t=yeDIh4InE8ceAOK8-1
 
+---
 ## 👥 Author
 - [Semenov Egor](https://github.com/HobbitTheCat) - Architecture, backend implementation, databases, security
 - [Piton Leo](https://github.com/Badoux17) - Frontend
