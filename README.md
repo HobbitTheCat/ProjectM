@@ -107,4 +107,4 @@ https://www.figma.com/proto/G2IlpxAks7ZCxRYwY0FsBf/Projet?node-id=0-1&t=yeDIh4In
 ---
 ## 👥 Author
 - [Semenov Egor](https://github.com/HobbitTheCat) - Architecture, backend implementation, databases, security
-- [Piton Leo](https://github.com/Badoux17) - Frontend
+- [Piton Leo](https://github.com/Badoux17) - Architecture , frontend , system design 
